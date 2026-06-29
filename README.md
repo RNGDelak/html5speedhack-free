@@ -1,7 +1,7 @@
 # HTML5 UNIVERSAL SPEED HACK
 # NOW WITH EXTENSION
 
-**WATCH YOUTUBE TUTORIAL IF YOU STRUGGLE IMPORTING THE EXTENSION : https://youtu.be/UXTlifB3_Bk
+**WATCH YOUTUBE TUTORIAL IF YOU STRUGGLE IMPORTING THE EXTENSION : https://youtu.be/UXTlifB3_Bk**
 
 - Download the folder "HTML5 speedhack free"
 - Extract (unzip) the downloaded file to a folder on your computer. you should delet README.md
