@@ -1,25 +1,22 @@
 // --- DEVTOOLS CLEANER ---
-// Backup the original console.log function
 const originalLog = console.log;
 
-// Override console.log globally in the page environment
 console.log = function (...args) {
-    // Check if the log looks like the timer array you want to block
     if (args.length === 1 && Array.isArray(args[0])) {
         const firstItem = args[0][0];
-        // If the array contains objects with 'timeout' or 'handler' properties, silence it!
-        if (firstItem && (typeof firstItem === 'object') && ('timeout' in firstItem || 'handler' in firstItem)) {
-            return; // Do nothing, blocking the log entirely
+        if (firstItem && typeof firstItem === "object" && ("timeout" in firstItem || "handler" in firstItem)) {
+            return;
         }
     }
-    
-    // Allow all other normal logs to pass through
     originalLog.apply(console, args);
 };
 // ------------------------
 
 let injected = false;
 
+// ------------------------
+// TAB HELPERS
+// ------------------------
 async function getActiveTab() {
     const [tab] = await chrome.tabs.query({
         active: true,
@@ -28,12 +25,13 @@ async function getActiveTab() {
     return tab;
 }
 
-// NEW: Validates whether the extension can run on the active tab's URL
+// ------------------------
+// PERMISSION CHECK + INJECTION
+// ------------------------
 async function checkPermissions() {
     const tab = await getActiveTab();
     if (!tab || !tab.url) return;
 
-    // Check if we have host permissions for the active site
     const hasPermission = await chrome.permissions.contains({
         origins: [tab.url]
     });
@@ -42,7 +40,6 @@ async function checkPermissions() {
 
     if (hasPermission) {
         warningBanner.style.display = "none";
-        // Permission is clean, run standard script injection
         injectSpeedHack();
     } else {
         warningBanner.style.display = "block";
@@ -53,24 +50,28 @@ async function injectSpeedHack() {
     if (injected) return;
 
     const tab = await getActiveTab();
+
     try {
         await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             files: ["speedhack.js"],
             world: "MAIN"
         });
+
         injected = true;
     } catch (err) {
-        console.warn("Script injection blocked. Presenting permission warning.", err);
+        console.warn("Injection failed:", err);
         document.getElementById("permission-warning").style.display = "block";
     }
 }
 
+// ------------------------
+// CONFIG APPLY + PERSIST
+// ------------------------
 async function applyConfig() {
-    // Prevent execution attempts if we know we aren't permitted/injected yet
-    if (!injected) return; 
-
     const tab = await getActiveTab();
+    if (!tab) return;
+
     const speedValue = Number(document.getElementById("speed-number").value) || 1;
 
     const config = {
@@ -81,6 +82,12 @@ async function applyConfig() {
         cbDateNowChecked: document.getElementById("date").checked,
         cbRequestAnimationFrameChecked: document.getElementById("raf").checked
     };
+
+    // ✅ SAVE CONFIG (fixes reset on popup close)
+    await chrome.storage.local.set({ speedHackConfig: config });
+
+    // Only try to send if injected (optional safety)
+    if (!injected) return;
 
     await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -95,13 +102,37 @@ async function applyConfig() {
     });
 }
 
-// Synchronized Inputs Configuration
+// ------------------------
+// RESTORE CONFIG ON OPEN
+// ------------------------
+async function restoreConfig() {
+    const data = await chrome.storage.local.get("speedHackConfig");
+    const config = data.speedHackConfig;
+    if (!config) return;
+
+    document.getElementById("speed-number").value = config.speed;
+    document.getElementById("speed").value = config.speed;
+
+    document.getElementById("interval").checked = config.cbSetIntervalChecked;
+    document.getElementById("timeout").checked = config.cbSetTimeoutChecked;
+    document.getElementById("performance").checked = config.cbPerformanceNowChecked;
+    document.getElementById("date").checked = config.cbDateNowChecked;
+    document.getElementById("raf").checked = config.cbRequestAnimationFrameChecked;
+}
+
+// ------------------------
+// SLIDER SYNC
+// ------------------------
 const slider = document.getElementById("speed");
 const numInput = document.getElementById("speed-number");
 
-slider.addEventListener("input", () => { numInput.value = slider.value; });
+slider.addEventListener("input", () => {
+    numInput.value = slider.value;
+});
+
 numInput.addEventListener("input", () => {
     const val = Number(numInput.value);
+
     if (val >= Number(slider.min) && val <= Number(slider.max)) {
         slider.value = val;
     } else if (val > Number(slider.max)) {
@@ -109,14 +140,23 @@ numInput.addEventListener("input", () => {
     }
 });
 
+// ------------------------
+// AUTO APPLY ON INPUT
+// ------------------------
 document.querySelectorAll("input").forEach(input => {
     input.addEventListener("input", applyConfig);
     input.addEventListener("change", applyConfig);
 });
 
+// ------------------------
+// MANUAL PERMISSION BUTTON
+// ------------------------
 document.getElementById("request-permission-btn").addEventListener("click", async () => {
     injectSpeedHack();
 });
 
-// Initialize by checking permissions instead of blinding injecting
+// ------------------------
+// INIT
+// ------------------------
+restoreConfig();
 checkPermissions();
