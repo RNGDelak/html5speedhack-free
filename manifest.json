@@ -4,6 +4,7 @@
   "version": "1.0",
   "description": "Modify timing functions on webpages. Free version by @rngdelak yaya",
   "permissions": [
+    "storage",
     "activeTab",
     "tabs",
     "scripting"
