@@ -1,4 +1,9 @@
 # HTML5 UNIVERSAL SPEED HACK
+
+***Some minor bugs and error on first the first time using. The page itself must allow hosting permission to be able to use***
+
+***If the request permission button popups, it likely the website blocked some permission since it has failed in automatically granting permission***
+
 # NOW WITH EXTENSION
 
 **WATCH YOUTUBE TUTORIAL IF YOU STRUGGLE IMPORTING THE EXTENSION : https://youtu.be/UXTlifB3_Bk**
