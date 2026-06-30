@@ -6,7 +6,9 @@
 
 # NOW WITH EXTENSION
 
-**WATCH YOUTUBE TUTORIAL IF YOU STRUGGLE IMPORTING THE EXTENSION : https://youtu.be/UXTlifB3_Bk**
+**WATCH YOUTUBE TUTORIAL IF YOU HAVE STRUGGLE IMPORTING THE EXTENSION : https://youtu.be/UXTlifB3_Bk**
+
+**WATCH YOUTUBE TUTORIAL IF YOU HAVE STRUGGLE GRANTING PERMISSION FOR THE EXTENSION : https://youtu.be/wbRjNm4L174**
 
 - Download the folder "HTML5 speedhack free"
 - Extract (unzip) the downloaded file to a folder on your computer. you should delet README.md
